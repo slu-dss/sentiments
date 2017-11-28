@@ -6,10 +6,10 @@ output: html_notebook
 ---
 
 ## Introduction
-This is the notebook associated with our seminar on sentiment analysis using `R`. This was given as part of the Digital Humanities' Fall 2017 seminar series. We'll be using examples from Julia Silge and David Robinson's awsome book [*Tidy Text Mining with `R`*](http://tidytextmining.com). You can get it for free online, for pick up a physical copy from Amazon and other retailers.
+This is the notebook associated with our seminar on sentiment analysis using `R`. This was given as part of the Digital Humanities' Fall 2017 seminar series. We'll be using examples from Julia Silge and David Robinson's awesome book [*Tidy Text Mining with `R`*](http://tidytextmining.com). You can get it for free online, for pick up a physical copy from Amazon and other retailers.
 
 ## `R` and RStudio Basics
-`R` is a programming language that is highly extensible and flexible - it can be adpated to work with everything from textual data to statistical and spatial data. [RStudio](http://rstudio.com) is a user interface for R that makes working with the language *much* easier. The first three features below that we'll discuss briefly are all aspects of RStudio - they are not part of the basic R releases.
+`R` is a programming language that is highly extensible and flexible - it can be adapted to work with everything from textual data to statistical and spatial data. [RStudio](http://rstudio.com) is a user interface for R that makes working with the language *much* easier. The first three features below that we'll discuss briefly are all aspects of RStudio - they are not part of the basic R releases.
 
 ### `R` Notebooks
 This is an [`R` Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
@@ -23,7 +23,7 @@ Add a new chunk by clicking the *Insert* button on the toolbar and choosing `R`.
 ### `R` Markdown
 All of the writing in this document uses [R Markdown](http://rmarkdown.rstudio.com) syntax. We use Markdown because it is simple to learn and allows us to work in plain text files so we aren't dependent on proprietary (and expensive!) software. RStudio can render Markdown into various formats like `html` and `pdf`.
 
-The pair of brackets matched with the pair of paraentheses in the previous paragraph is how we hyperlink references. You won't see the url when the text is renderd - the text "R Markdown" will be a hyperlink that you can click on.
+The pair of brackets matched with the pair of parentheses in the previous paragraph is how we hyperlink references. You won't see the url when the text is renders - the text "R Markdown" will be a hyperlink that you can click on.
 
 We use the number sign for headings where one number sign is the highest level heading and six number signs are the lowest level headings. 
 
@@ -45,7 +45,7 @@ We gave you an `R` project for today's session. If you want to create a new proj
 
 Packages are the way that we can extend the base `R` software. They are typically written by `R` users and made available for free via a series of servers called CRAN.
 
-To install new packages, we use the `install.packages()` function where the package name is written inside the parantheses in double quotes - `"package name"`. For the `"tidyverse"` package, the installation function would look like this:
+To install new packages, we use the `install.packages()` function where the package name is written inside the parentheses in double quotes - `"package name"`. For the `"tidyverse"` package, the installation function would look like this:
 
 ```{r}
 # install.packages("tidyverse")
@@ -60,12 +60,14 @@ We'll also need a number of other packages:
 We install packages one at a time. In the code chunk below, you'll need to write there `install.package()` functions for `RMarkdown`, `knitr`, and `tidytext`:
 
 ```{r}
-
+# install.packages("RMarkdown")
+# install.packages("knitr")
+# install.packages("tidytext")
 ```
 
 ### Loading `R` Packages
 
-The [tidyverse](http://tidyverse.org) is actually a family of packages for R that share a philosophy on how data analysis *should* be done (they're very opinionated!). We're going to use a couple of those packages today. One of those is the `dplyr` package. We need to load packages explicity like this:
+The [tidyverse](http://tidyverse.org) is actually a family of packages for R that share a philosophy on how data analysis *should* be done (they're very opinionated!). We're going to use a couple of those packages today. One of those is the `dplyr` package. We need to load packages explicitly like this:
 
 ```{r}
 library(dplyr)    # clean data
@@ -82,13 +84,13 @@ library(janeaustenr)
 ```
 
 ## Tidy Text
-The `tidytext` package uses a distinct approach to textual analysis, where each word in a sentance is referred to as a "token". The full text of a work must therefore be "tokenized" into a spreadsheet-like entity that stores each token (i.e. word) on its own row. The Jane Austen package contains data by line, not by word, so we'll need to modify it. You can access all six books using the `austen_books()` function.
+The `tidytext` package uses a distinct approach to textual analysis, where each word in a sentence is referred to as a "token". The full text of a work must therefore be "tokenized" into a spreadsheet-like entity that stores each token (i.e. word) on its own row. The Jane Austen package contains data by line, not by word, so we'll need to modify it. You can access all six books using the `austen_books()` function.
 
 ```{r}
 austen_books()
 ```
 
-To extrat the full text of *Sense & Sensibility* (1811), we need to take the data from the `austen_books()` function, **then** identify rows associated with *Sense & Sensibility*, and assign those rows to a new data frame called `senseFull`:
+To extract the full text of *Sense & Sensibility* (1811), we need to take the data from the `austen_books()` function, **then** identify rows associated with *Sense & Sensibility*, and assign those rows to a new data frame called `senseFull`:
 
 ```{r}
 austen_books() %>%
