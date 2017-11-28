@@ -1,0 +1,201 @@
+---
+title: "Seniment Analysis with R"
+date: "November 29, 2017"
+author: "Christina Garcia, Ph.D., and Christopher Prener, Ph.D."
+output: html_notebook
+---
+
+## Introduction
+This is the notebook associated with our seminar on sentiment analysis using `R`. This was given as part of the Digital Humanities' Fall 2017 seminar series. We'll be using examples from Julia Silge and David Robinson's awsome book [*Tidy Text Mining with `R`*](http://tidytextmining.com). You can get it for free online, for pick up a physical copy from Amazon and other retailers.
+
+## `R` and RStudio Basics
+`R` is a programming language that is highly extensible and flexible - it can be adpated to work with everything from textual data to statistical and spatial data. [RStudio](http://rstudio.com) is a user interface for R that makes working with the language *much* easier. The first three features below that we'll discuss briefly are all aspects of RStudio - they are not part of the basic R releases.
+
+### `R` Notebooks
+This is an [`R` Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+
+```{r}
+plot(cars)
+```
+
+Add a new chunk by clicking the *Insert* button on the toolbar and choosing `R`. When you save the notebook, an `html` file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the `html` file). The `html` file will always be saved in the directory that your `R` Markdown file is saved in. If you want to create a new `R` Notebook, you can do so by going to `File > New File > R Notebook`.
+
+### `R` Markdown
+All of the writing in this document uses [R Markdown](http://rmarkdown.rstudio.com) syntax. We use Markdown because it is simple to learn and allows us to work in plain text files so we aren't dependent on proprietary (and expensive!) software. RStudio can render Markdown into various formats like `html` and `pdf`.
+
+The pair of brackets matched with the pair of paraentheses in the previous paragraph is how we hyperlink references. You won't see the url when the text is renderd - the text "R Markdown" will be a hyperlink that you can click on.
+
+We use the number sign for headings where one number sign is the highest level heading and six number signs are the lowest level headings. 
+
+*This is italicized text*, **this is bold text**, and `this is text in a typewriter font`. We use the `typewriter font` to refer to file and variable names.
+
+* We 
+* can
+* also
+* make
+* bulleted
+* lists.
+
+### `R` Projects
+`R` projects create a home for your analyses. When you set a `R` project up, it will change the **working directory** to the project's directory. This means that all of the data you save from RStudio will be saved there by default. It also means that you can open files saved in that directory without needing to worry about file paths. 
+
+We gave you an `R` project for today's session. If you want to create a new project for your own work, go to `File > New Project...` and follow the prompts. You can create a new project directory, associate a project with an existing directory, and even add `git` version control if you know how to use it!
+
+### Installing `R` Packages
+
+Packages are the way that we can extend the base `R` software. They are typically written by `R` users and made available for free via a series of servers called CRAN.
+
+To install new packages, we use the `install.packages()` function where the package name is written inside the parantheses in double quotes - `"package name"`. For the `"tidyverse"` package, the installation function would look like this:
+
+```{r}
+# install.packages("tidyverse")
+```
+
+We'll also need a number of other packages:
+
+* `RMarkdown` - implements the `R` flavor of [Markdown]()
+* `knitr` - allows us to convert RMarkdown documents to html
+* `tidytext` - a suite of functions for text mining in `R`; this will also install `janeaustenr`, which gives us access to the full text of Jane Austen's six major novels
+
+We install packages one at a time. In the code chunk below, you'll need to write there `install.package()` functions for `RMarkdown`, `knitr`, and `tidytext`:
+
+```{r}
+
+```
+
+### Loading `R` Packages
+
+The [tidyverse](http://tidyverse.org) is actually a family of packages for R that share a philosophy on how data analysis *should* be done (they're very opinionated!). We're going to use a couple of those packages today. One of those is the `dplyr` package. We need to load packages explicity like this:
+
+```{r}
+library(dplyr)    # clean data
+library(ggplot2)  # plotting data
+library(stringr)  # work with strings
+library(tidyr)    # clean data
+```
+
+Now it is your turn to load two packages - `tidytext` and `janeaustenr`:
+
+```{r}
+library(tidytext)
+library(janeaustenr)
+```
+
+## Tidy Text
+The `tidytext` package uses a distinct approach to textual analysis, where each word in a sentance is referred to as a "token". The full text of a work must therefore be "tokenized" into a spreadsheet-like entity that stores each token (i.e. word) on its own row. The Jane Austen package contains data by line, not by word, so we'll need to modify it. You can access all six books using the `austen_books()` function.
+
+```{r}
+austen_books()
+```
+
+To extrat the full text of *Sense & Sensibility* (1811), we need to take the data from the `austen_books()` function, **then** identify rows associated with *Sense & Sensibility*, and assign those rows to a new data frame called `senseFull`:
+
+```{r}
+austen_books() %>%
+  filter(book == "Sense & Sensibility") -> senseFull
+```
+
+Now it is your turn! Replicate this exact same process, but with the text of *Pride & Prejudice* (1813). Save the output to an object called `prideFull`:
+
+```{r}
+austen_books() %>%
+  filter(book == "Pride & Prejudice") -> prideFull
+```
+
+## Tokenizing Text
+Before we tokenize our text, we want to create new variables (columns) for both the line number and the chapter a word is taken from. We'll use the `mutate()` function from `dplyr` to do this. Then we'll `ungroup()` the text and tokenize it using `unnest_tokens()`, before we assign the output to a new data object called `senseTidy`:
+
+```{r}
+senseFull %>%
+  mutate(linenumber = row_number()) %>%
+  mutate(chapter = cumsum(str_detect(text, regex("^chapter [\\divxlc]", ignore_case = TRUE)))) %>%
+  ungroup() %>%
+  unnest_tokens(word, text) -> senseTidy
+```
+
+We've copied and pasted the code from above into a second chunk. Change the original source data from `senseFull` to `prideFull` and the output from `senseTidy` to `prideTidy` before you execute the code chunk:
+
+```{r}
+prideFull %>%
+  mutate(linenumber = row_number()) %>%
+  mutate(chapter = cumsum(str_detect(text, regex("^chapter [\\divxlc]", ignore_case = TRUE)))) %>%
+  ungroup() %>%
+  unnest_tokens(word, text) -> prideTidy
+```
+
+We can see the results of our handiwork by printing the `senseTidy` object in our notebook:
+
+```{r}
+senseTidy
+```
+
+## Seniment Dictionaries
+The `tidytext` package comes with a number of sentiment dictionaries that we can use for our analysis. We can explore how they work using the `get_sentiments()` function:
+
+```{r}
+get_sentiments("bing")
+```
+
+In addition to "bing", the `tidytext` package also includes the "afinn" and "nrc" sentiment dictionaries.
+
+For our analysis, we'll match up the tokenized words with the "bing" dictionary, and then "map" both *Sense & Sensibility* and *Pride & Prejudice* based on how the sentiment changes over the course of each book.
+
+## Sentiment Analysis
+The next code chunk implements the process of matching the text of *Sense & Sensibility* with the "bing" sentiments dictionary we explored above. Our plan follow the process that [Silge and Robinson (2017)](http://tidytextmining.com/sentiment.html) suggest:
+
+> Small sections of text may not have enough words in them to get a good estimate of sentiment while really large sections can wash out narrative structure. For these books, using 80 lines works well, but this can vary depending on individual texts, how long the lines were to start with, etc. 
+
+We: 
+* take our data from `senseTidy`, 
+* **then** combine it with the sentiments dictionary using `inner_join()`, 
+* **then** create 80 token chunks to text to evaluate using `count()`, 
+* **then** create separate columns for the positive and negative counts for each 80 token chunk using the `spread()` function, 
+* **then** create a new variable that measures the net sentiment of each 80 token chunk using the `mutate()` function,
+* and assign all of these changes to a new data object called `senseSentiment`:
+
+```{r}
+senseTidy %>%
+  inner_join(get_sentiments("bing")) %>%
+  count(book, index = linenumber %/% 80, sentiment) %>%
+  spread(sentiment, n, fill = 0) %>%
+  mutate(sentiment = positive - negative) -> senseSentiment
+```
+
+The `inner_join()` function will retain only the words that exist in the sentiment dictionary, so words like "the" will be removed from the data frame completely.
+
+We can explore how the data have changed by entering the data object's name into `R`:
+
+```{r}
+senseSentiment
+```
+
+We've copied and pasted the code from above into a second chunk. Change the data references from `senseTidy` to `prideTidy` and `senseSentiment` to `prideSentiment` before you execute the code chunk:
+
+```{r}
+prideTidy %>%
+  inner_join(get_sentiments("bing")) %>%
+  count(book, index = linenumber %/% 80, sentiment) %>%
+  spread(sentiment, n, fill = 0) %>%
+  mutate(sentiment = positive - negative) -> prideSentiment
+```
+
+## Ploting Sentiment Changes
+We'll use `ggplot2` to map how sentiment changes over the course of each book. We'll plot the net sentiment scores on the y axis and use the index value for the x axis. Since the index value reflects the position of each 80 word chunk in the book, we can see how sentiment changes over the course of the novel:
+
+```{r}
+ggplot(senseSentiment, aes(x = index, y = sentiment)) +
+  geom_col(fill = "#F8766D") +
+  labs(
+    title = "Sense & Sensibility",
+    subtitle = "Sentiment Analysis")
+```
+
+Replicate the code above, but use the hex color #00C094 instead and alter the title of the plot appropriately:
+
+```{r}
+ggplot(prideSentiment, aes(x = index, y = sentiment)) +
+  geom_col(fill = "#00C094") +
+  labs(
+    title = "Pride & Prejudice",
+    subtitle = "Sentiment Analysis")
+```
