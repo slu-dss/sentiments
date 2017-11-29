@@ -1,27 +1,47 @@
-library(dplyr)
-library(tidytext)
+---
+title: "R Notebook"
+output: html_notebook
+---
 
-frostRoads <- read.delim("frostRoads.txt", header = FALSE)
+We can use the `read.delim()` function to import our `txt` file with Robert Frost's "The Road Not Taken":
 
+```{r}
+frostRoads <- read.delim("frostRoads.txt", header = FALSE, stringsAsFactors = FALSE)
+```
+
+We need to take some extra steps for cleaning the poem. First, it is imported as a data frame with a single variable named `V1`. We want to change that to `text` to match the code from [*Tidy Text Mining with `R`*](http://tidytextmining.com). We also want to cut out the line of code meant for managing chapters.
+
+```{r}
 frostRoads %>%
   rename(text = V1) %>%
-  mutate(text = as.character(text)) %>%
   mutate(linenumber = row_number()) %>%
   ungroup() %>%
   unnest_tokens(word, text) -> tidyRoads
+```
 
+Our second block of code uses 2 lines instead of 80, since poems are quiet a bit shorter than novels. We also take out the reference to the `book` variable since that is not a relevant piece of data here.
+
+```{r}
 tidyRoads %>%
   inner_join(get_sentiments("bing")) %>%
   count(index = linenumber %/% 2, sentiment) %>%
   spread(sentiment, n, fill = 0) %>%
   mutate(sentiment = positive - negative) -> sentimentRoads
+```
 
+Our plot goes unchanged except for updating the object meant to be plotted.
+
+```{r}
 ggplot(sentimentRoads, aes(x = index, y = sentiment)) +
   geom_col(fill = "#F8766D") +
   labs(
     title = "The Road Not Taken by Robert Frost",
     subtitle = "Sentiment Analysis")
+```
 
+Now you try to import and analyze another Frost poem, "Christmas Trees".
+
+```{r}
 frostXmas <- read.delim("frostXmas.txt", header = FALSE)
 
 frostXmas %>%
@@ -42,3 +62,5 @@ ggplot(sentimentXmas, aes(x = index, y = sentiment)) +
   labs(
     title = "Christmas Trees by Robert Frost",
     subtitle = "Sentiment Analysis")
+
+```
