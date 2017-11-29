@@ -48,7 +48,7 @@ Packages are the way that we can extend the base `R` software. They are typicall
 To install new packages, we use the `install.packages()` function where the package name is written inside the parentheses in double quotes - `"package name"`. For the `"tidyverse"` package, the installation function would look like this:
 
 ```{r}
-install.packages("tidyverse")
+# install.packages("tidyverse")
 ```
 
 We'll also need a number of other packages:
@@ -60,9 +60,9 @@ We'll also need a number of other packages:
 We install packages one at a time. In the code chunk below, you'll need to write there `install.package()` functions for `rmarkdown`, `knitr`, and `tidytext`:
 
 ```{r}
-install.packages("rmarkdown")
-install.packages("knitr")
-install.packages("tidytext")
+# install.packages("rmarkdown")
+# install.packages("knitr")
+# install.packages("tidytext")
 ```
 
 ### Loading `R` Packages
@@ -192,7 +192,7 @@ ggplot(senseSentiment, aes(x = index, y = sentiment)) +
     subtitle = "Sentiment Analysis")
 ```
 
-Replicate the code above, but use the hex color #00C094 instead and alter the title of the plot appropriately:
+Replicate the code above, but change `senseSentiment` to `prideSentiment`, use the hex color #00C094 instead, and alter the title of the plot appropriately:
 
 ```{r}
 ggplot(prideSentiment, aes(x = index, y = sentiment)) +

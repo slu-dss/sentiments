@@ -192,7 +192,7 @@ ggplot(senseSentiment, aes(x = index, y = sentiment)) +
     subtitle = "Sentiment Analysis")
 ```
 
-Replicate the code above, but use the hex color #00C094 instead and alter the title of the plot appropriately:
+Replicate the code above, but change `senseSentiment` to `prideSentiment`, use the hex color #00C094 instead, and alter the title of the plot appropriately:
 
 ```{r}
 ggplot(senseSentiment, aes(x = index, y = sentiment)) +
