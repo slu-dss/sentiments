@@ -60,9 +60,9 @@ We'll also need a number of other packages:
 We install packages one at a time. In the code chunk below, you'll need to write there `install.package()` functions for `rmarkdown`, `knitr`, and `tidytext`:
 
 ```{r}
-
-
-
+install.packages("rmarkdown")
+install.packages("knitr")
+install.packages("tidytext")
 ```
 
 ### Loading `R` Packages
@@ -79,8 +79,8 @@ library(tidyr)    # clean data
 Now it is your turn to load two packages - `tidytext` and `janeaustenr`:
 
 ```{r}
-
-
+library(tidytext)
+library(janeaustenr)
 ```
 
 ## Tidy Text
@@ -100,8 +100,8 @@ austen_books() %>%
 Now it is your turn! Replicate this exact same process, but with the text of *Pride & Prejudice* (1813). Save the output to an object called `prideFull`:
 
 ```{r}
-
-
+austen_books() %>%
+  filter(book == "Pride & Prejudice") -> prideFull
 ```
 
 ## Tokenizing Text
@@ -118,11 +118,11 @@ senseFull %>%
 We've copied and pasted the code from above into a second chunk. Change the original source data from `senseFull` to `prideFull` and the output from `senseTidy` to `prideTidy` before you execute the code chunk:
 
 ```{r}
-senseFull %>%
+prideFull %>%
   mutate(linenumber = row_number()) %>%
   mutate(chapter = cumsum(str_detect(text, regex("^chapter [\\divxlc]", ignore_case = TRUE)))) %>%
   ungroup() %>%
-  unnest_tokens(word, text) -> senseTidy
+  unnest_tokens(word, text) -> prideTidy
 ```
 
 We can see the results of our handiwork by printing the `senseTidy` object in our notebook:
@@ -174,11 +174,11 @@ senseSentiment
 We've copied and pasted the code from above into a second chunk. Change the data references from `senseTidy` to `prideTidy` and `senseSentiment` to `prideSentiment` before you execute the code chunk:
 
 ```{r}
-senseTidy %>%
+prideTidy %>%
   inner_join(get_sentiments("bing")) %>%
   count(book, index = linenumber %/% 80, sentiment) %>%
   spread(sentiment, n, fill = 0) %>%
-  mutate(sentiment = positive - negative) -> senseSentiment
+  mutate(sentiment = positive - negative) -> prideSentiment
 ```
 
 ## Ploting Sentiment Changes
@@ -195,9 +195,9 @@ ggplot(senseSentiment, aes(x = index, y = sentiment)) +
 Replicate the code above, but use the hex color #00C094 instead and alter the title of the plot appropriately:
 
 ```{r}
-ggplot(senseSentiment, aes(x = index, y = sentiment)) +
-  geom_col(fill = "#F8766D") +
+ggplot(prideSentiment, aes(x = index, y = sentiment)) +
+  geom_col(fill = "#00C094") +
   labs(
-    title = "Sense & Sensibility",
+    title = "Pride & Prejudice",
     subtitle = "Sentiment Analysis")
 ```
